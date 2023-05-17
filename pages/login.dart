@@ -23,7 +23,7 @@ class _MyLoginState extends State<MyLogin> {
   String useremail = "";
 
   String _dropdownVal = "users";
-  List<String> _dropdownItems = <String>['users', "service provider"];
+  List<String> _dropdownItems = <String>['users', "service provider", "admin"];
 
   void login() async {
     final User? user = (await auth.createUserWithEmailAndPassword(
@@ -228,6 +228,10 @@ class _MyLoginState extends State<MyLogin> {
                           ),
                         ),
 
+                        const SizedBox(
+                          height: 25,
+                        ),
+
                         Container(
                           alignment: Alignment.center,
                           child: ElevatedButton(
@@ -251,6 +255,9 @@ class _MyLoginState extends State<MyLogin> {
                               )),
                         ),
 
+                        const SizedBox(
+                          height: 25,
+                        ),
                         Container(
                           alignment: Alignment.center,
                           child: ElevatedButton(
