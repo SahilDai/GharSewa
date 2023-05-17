@@ -22,15 +22,8 @@ class _MyLoginState extends State<MyLogin> {
   int success = 1;
   String useremail = "";
 
-  String _dropdownVal = "plumber";
-  List<String> _dropdownItems = <String>[
-    'plumber',
-    'cleaner',
-    'electrician',
-    'painter',
-    'carpenter',
-    'gardener'
-  ];
+  String _dropdownVal = "users";
+  List<String> _dropdownItems = <String>['users', "service provider"];
 
   void login() async {
     final User? user = (await auth.createUserWithEmailAndPassword(
@@ -79,7 +72,7 @@ class _MyLoginState extends State<MyLogin> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF96d3d3),
+      color: Color.fromARGB(255, 255, 255, 255),
 
       // decoration: const BoxDecoration(
       //   image: DecorationImage(
@@ -189,7 +182,7 @@ class _MyLoginState extends State<MyLogin> {
                           padding: EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            color: Colors.black,
+                            color: Color.fromARGB(255, 226, 213, 213),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.2),

@@ -22,6 +22,9 @@ class _RegisterState extends State<Register> {
   late String useremail;
   late String resMessage;
 
+  String _dropdownVal = "users";
+  List<String> _dropdownItems = <String>['users', "service provider"];
+
   void register() async {
     final bool? res = await createNewUserWithEmailAndPassword(
         _emailController.text, _passwordController.text);
@@ -59,7 +62,7 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFF96d3d3),
+      color: Color.fromARGB(255, 255, 255, 255),
       // decoration: const BoxDecoration(
       //   image: DecorationImage(
       //       image: AssetImage('assets/images/register.png'), fit: BoxFit.cover),
@@ -210,6 +213,56 @@ class _RegisterState extends State<Register> {
                             ),
                             const SizedBox(
                               height: 40,
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Color.fromARGB(255, 161, 145, 145),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: DropdownButton<String>(
+                                value: _dropdownVal,
+                                icon: Icon(Icons.arrow_drop_down,
+                                    color: Colors.grey[700]),
+                                iconSize: 24,
+                                elevation: 16,
+                                isExpanded: true,
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                underline: SizedBox.shrink(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _dropdownVal = newValue!;
+                                  });
+                                },
+                                items: _dropdownItems
+                                    .map<DropdownMenuItem<String>>(
+                                      (String value) =>
+                                          DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 12),
+                                          child: Text(
+                                            value,
+                                            style: TextStyle(fontSize: 20),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
