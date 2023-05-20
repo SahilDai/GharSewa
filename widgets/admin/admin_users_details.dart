@@ -1,6 +1,5 @@
 import 'package:day35/services/firestore_users.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class UserDetails extends StatefulWidget {
   final UserStruct IUsers;

@@ -1,7 +1,5 @@
 import 'package:day35/services/firestore_users.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class WorkerDetail extends StatefulWidget {
   final UserStruct Iworker;
@@ -189,12 +187,12 @@ class _WorkerDetailState extends State<WorkerDetail> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        deleteUserFromFireStore(worker.id!);
+                        deleteUserFromFireStore(widget.Iworker.id!);
                         Navigator.of(context).pop();
                       },
                       child: Text("Delete"),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red,
+                        backgroundColor: Colors.red,
                       ),
                     ),
                   ],

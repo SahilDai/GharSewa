@@ -47,17 +47,16 @@ class _RegisterState extends State<Register> {
 
     if (res["success"]) {
       UserStruct user = new UserStruct(
-        id: res["uid"],
-        firstName: _firstName.text,
-        lastName: _lastName.text,
-        username: _firstName.text + "@" + _lastName.text,
-        contact: _contactController.text,
-        address: _addressController.text,
-        email: _emailController.text,
-        type: _dropdownVal,
-        isAvailable: true,
-        workType: isServiceProviderSelected,
-      );
+          firstName: _firstName.text,
+          lastName: _lastName.text,
+          username: _firstName.text + "@" + _lastName.text,
+          contact: _contactController.text,
+          address: _addressController.text,
+          email: _emailController.text,
+          type: _dropdownVal,
+          isAvailable: true,
+          workType: isServiceProviderSelected,
+          authID: res["uid"]);
 
       addUsersToFireStore(user);
       setState(() {

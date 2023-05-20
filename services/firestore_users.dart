@@ -105,8 +105,6 @@ Future<String> addUsersToFireStore(UserStruct user) async {
 }
 
 void deleteUserFromFireStore(String userId) async {
-  print("RUNNING DELETE USER FUNCTION");
-  print(userId);
   try {
     await firebaseUser.doc(userId).delete();
     print('User with ID $userId deleted successfully!');
