@@ -1,6 +1,8 @@
 import 'package:day35/helper/show_dialog.dart';
-import 'package:day35/pages/admin_home.dart';
 import 'package:day35/services/firebase_authentication.dart';
+import 'package:day35/services/firestore_users.dart';
+import 'package:day35/widgets/admin/admin_home.dart';
+import 'package:day35/widgets/service_provider/provider_home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:day35/pages/select_service.dart';
 import 'package:flutter/material.dart';
@@ -43,27 +45,58 @@ class _MyLoginState extends State<MyLogin> {
   }
 
   void loginUser() async {
-    final bool isUserValid = await validateIfUserExistOrNo(
+    final Map<String, dynamic> isUserValid = await validateIfUserExistOrNo(
         _emailController.text, _passwordController.text);
 
-    if (isUserValid) {
-      setState(() {
-        isLoggedIn = true;
-        useremail = _emailController.text;
-        resMessage = "Successfully logged in";
+    if (isUserValid["success"]) {
+      UserStruct? mUser = await getUsersFromFirestore(isUserValid["uid"]);
+      if (mUser?.type == _dropdownVal) {
+        String? pUser = mUser?.type;
+        setState(() {
+          isLoggedIn = true;
+          useremail = _emailController.text;
+          resMessage = "Successfully logged in";
 
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(resMessage)));
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const SelectService()));
-      });
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(resMessage)));
+
+          switch (pUser) {
+            case "admin":
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const AdminWidget()));
+
+              break;
+
+            case "service provider":
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ProviderHome()));
+              break;
+
+            default:
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SelectService()));
+          }
+        });
+      } else {
+        setState(() {
+          isLoggedIn = false;
+          resMessage = "Incorrect email and password";
+
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(resMessage)));
+          showDialogLocal("Error", resMessage, context);
+        });
+      }
     } else {
       setState(() {
         isLoggedIn = false;
-        resMessage = "Incorrect email and password";
+        resMessage = "Incorrect email or password";
 
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(resMessage)));
+
         showDialogLocal("Error", resMessage, context);
       });
     }
@@ -73,14 +106,6 @@ class _MyLoginState extends State<MyLogin> {
   Widget build(BuildContext context) {
     return Container(
       color: Color.fromARGB(255, 255, 255, 255),
-
-      // decoration: const BoxDecoration(
-      //   image: DecorationImage(
-      //     image: AssetImage('assets/images/loginbg.jpg'),
-      //     fit: BoxFit.cover,
-      //     colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
-      //   ),
-      // ),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
@@ -155,7 +180,6 @@ class _MyLoginState extends State<MyLogin> {
                         const SizedBox(
                           height: 20,
                         ),
-
                         Container(
                           alignment: Alignment.centerRight,
                           child: GestureDetector(
@@ -177,7 +201,6 @@ class _MyLoginState extends State<MyLogin> {
                         const SizedBox(
                           height: 25,
                         ),
-
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
@@ -227,11 +250,9 @@ class _MyLoginState extends State<MyLogin> {
                                 .toList(),
                           ),
                         ),
-
                         const SizedBox(
                           height: 25,
                         ),
-
                         Container(
                           alignment: Alignment.center,
                           child: ElevatedButton(
@@ -254,79 +275,6 @@ class _MyLoginState extends State<MyLogin> {
                                     fontWeight: FontWeight.bold),
                               )),
                         ),
-
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: ElevatedButton(
-                              onPressed: () {
-                                print("NAVIGATE TO ADMIN LOGIN PAGE");
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            const AdminWidget()));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                fixedSize: const Size(200, 45),
-                                elevation: 5.0,
-                                backgroundColor: const Color(0xFFEDEEC9),
-                              ),
-                              child: const Text(
-                                "Admin login",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold),
-                              )),
-                        ),
-                        // Container(
-                        //   padding: const EdgeInsets.all(6),
-                        //   child: Text(
-                        //     success == 1
-                        //         ? ''
-                        //         : (success == 2
-                        //             ? 'Account created successfully$useremail'
-                        //             : 'Login failed'),
-                        //     style: const TextStyle(
-                        //         color: Colors.green,
-                        //         fontWeight: FontWeight.bold),
-                        //   ),
-                        // ),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //   children: [
-                        //     const Text(
-                        //       'Sign in',
-                        //       style: TextStyle(
-                        //           fontSize: 27,
-                        //           fontWeight: FontWeight.w700,
-                        //           color: Colors.white),
-                        //     ),
-                        //     CircleAvatar(
-                        //       radius: 30,
-                        //       backgroundColor: const Color(0xff4c505b),
-                        //       child: IconButton(
-                        //           color: Colors.white,
-                        //           onPressed: () async {
-                        //             Navigator.push(
-                        //               context,
-                        //               MaterialPageRoute(
-                        //                   builder: (context) =>
-                        //                       const MyApp()),
-                        //             );
-                        //           },
-                        //           icon: const Icon(
-                        //             Icons.arrow_forward,
-                        //           )),
-                        //     )
-                        //   ],
-                        // ),
                         const SizedBox(
                           height: 30,
                         ),

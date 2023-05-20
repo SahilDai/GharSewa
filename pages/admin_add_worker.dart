@@ -219,7 +219,6 @@ class _AddWorkerState extends State<AddWorkerWidget>
                                     .toList(),
                               ),
                             ),
-
                             const SizedBox(
                               height: 30,
                             ),

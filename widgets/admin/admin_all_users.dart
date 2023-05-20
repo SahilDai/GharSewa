@@ -1,16 +1,14 @@
-import 'package:day35/widgets/admin/admin_worker_detail.dart';
 import 'package:day35/services/firestore_users.dart';
+import 'package:day35/widgets/admin/admin_users_details.dart';
 import 'package:flutter/material.dart';
 
-class ViewAllWorker extends StatelessWidget {
-  const ViewAllWorker({Key? key}) : super(key: key);
-
+class ViewAllUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('All Workers')),
+      appBar: AppBar(title: Text('All Users')),
       body: FutureBuilder<List<UserStruct>>(
-        future: getAllUsersFromFireStore("service provider"),
+        future: getAllUsersFromFireStore("users"),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<UserStruct> workers = snapshot.data!;
@@ -30,7 +28,7 @@ class ViewAllWorker extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      WorkerDetail(Iworker: worker)));
+                                      UserDetails(IUsers: worker)));
                         },
                       ),
                     ),

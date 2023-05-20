@@ -3,52 +3,46 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 
 final FirebaseAuth auth = FirebaseAuth.instance;
-
-Future<bool> createNewUserWithEmailAndPassword(
+Future<Map<String, dynamic>> createNewUserWithEmailAndPassword(
     String email, String password) async {
   try {
     UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: email, password: password);
-
     User? user = userCredential.user;
-    print(user);
-    return true;
+    String? authID = user?.uid;
+    return {'success': true, 'uid': authID};
   } on FirebaseAuthException catch (e) {
     if (e.code == 'weak-password') {
       print("Password is too short, write a BBC");
-      return false;
+      return {'success': false, 'error': 'weak-password'};
     } else if (e.code == 'email-already-in-use') {
       print("Email address already in use, try forget password to reset");
-      return false;
+      return {'success': false, 'error': 'email-already-in-use'};
     }
   } catch (e) {
-    return false;
+    return {'success': false, 'error': e.toString()};
   }
 
-  return false;
+  return {'success': false, 'error': 'Unknown error occurred'};
 }
 
-Future<bool> validateIfUserExistOrNo(String email, String password) async {
+Future<Map<String, dynamic>> validateIfUserExistOrNo(
+    String email, String password) async {
   try {
-    print("LOGGING-USER-TO-PAGE");
     UserCredential userCred =
         await auth.signInWithEmailAndPassword(email: email, password: password);
     User? user = userCred.user;
-    print(user);
-    print("SUCCESS");
-    return true;
+    return {'success': true, 'uid': user?.uid};
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {
-      print("User not found....");
-      return false;
+      return {'success': false, 'uid': Null};
     } else if (e.code == 'wrong-password') {
-      print("wrong password");
-      return false;
+      return {'success': false, 'uid': Null};
     }
   } catch (e) {
-    return false;
+    return {'success': false, 'uid': Null};
   }
-  return false;
+  return {'success': false, 'uid': Null};
 }
 
 Widget checkIfUserLoggedIn(Widget childWidget) {

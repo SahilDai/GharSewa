@@ -1,19 +1,19 @@
 import 'package:day35/services/firestore_users.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
-class WorkerDetail extends StatefulWidget {
-  final UserStruct Iworker;
-  const WorkerDetail({required this.Iworker, Key? key}) : super(key: key);
+class UserDetails extends StatefulWidget {
+  final UserStruct IUsers;
+  const UserDetails({required this.IUsers, Key? key}) : super(key: key);
 
   @override
-  _WorkerDetailState createState() => _WorkerDetailState();
+  _UserDetailState createState() => _UserDetailState();
 }
 
-class _WorkerDetailState extends State<WorkerDetail> {
+class _UserDetailState extends State<UserDetails> {
   final _formKey = GlobalKey<FormState>();
 
+  late String _id = "";
   late String _username = "";
   late String _email = "";
   late String _phone = "";
@@ -27,34 +27,43 @@ class _WorkerDetailState extends State<WorkerDetail> {
 
     if (isValid) {
       _formKey.currentState!.save();
-      print("Name: $_username, Email: $_email, Phone: $_phone");
+      print("Name: $_username, Email: $_email, Phone: $_phone, ID: $_id");
 
-
-    UserStruct user = UserStruct(firstName: _firstName, lastName: _lastName, username: _username, contact: _phone, address: _address, email: _email, type: "worker", isAvailable: true, workType: _workType);
-    updateUserFromFireStore(widget.Iworker.id!, user);
+      UserStruct user = UserStruct(
+          firstName: _firstName,
+          lastName: _lastName,
+          username: _username,
+          contact: _phone,
+          address: _address,
+          email: _email,
+          type: "users",
+          isAvailable: true,
+          workType: _workType);
+      updateUserFromFireStore(widget.IUsers.id!, user);
     }
   }
 
   @override
   void initState() {
     super.initState();
-    _username = widget.Iworker.username!;
-    _firstName = widget.Iworker.firstName!;
-    _lastName = widget.Iworker.lastName!;
-    _workType = widget.Iworker.workType!;
-    _email = widget.Iworker.email!;
-    _phone = widget.Iworker.contact!;
-    _address = widget.Iworker.address!;
+    _id = widget.IUsers.id!;
+    _username = widget.IUsers.username!;
+    _firstName = widget.IUsers.firstName!;
+    _lastName = widget.IUsers.lastName!;
+    _workType = widget.IUsers.workType!;
+    _email = widget.IUsers.email!;
+    _phone = widget.IUsers.contact!;
+    _address = widget.IUsers.address!;
   }
 
   @override
   Widget build(BuildContext context) {
-    final UserStruct worker =
+    final UserStruct user =
         ModalRoute.of(context)!.settings.arguments as UserStruct;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Worker Detail"),
+        title: Text("Users Detail"),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -181,12 +190,15 @@ class _WorkerDetailState extends State<WorkerDetail> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        deleteUserFromFireStore(worker.id!);
-                        Navigator.of(context).pop();
+                        print(widget.IUsers.id);
+                        if (widget.IUsers.id != null) {
+                          deleteUserFromFireStore(widget.IUsers.id!);
+                          Navigator.of(context).pop();
+                        }
                       },
                       child: Text("Delete"),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.red,
+                        backgroundColor: Colors.red,
                       ),
                     ),
                   ],

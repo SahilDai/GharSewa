@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
@@ -16,8 +14,10 @@ class UserStruct {
   String? type;
   bool? isAvailable;
   String? workType;
+  String? authID;
 
   UserStruct({
+    this.id,
     required this.firstName,
     required this.lastName,
     required this.username,
@@ -27,10 +27,12 @@ class UserStruct {
     required this.type,
     required this.isAvailable,
     required this.workType,
+    this.authID,
   });
 
   Map<String, dynamic> toMap() {
     return {
+      "id": id,
       "firstname": firstName,
       "lastname": lastName,
       "username": username,
@@ -39,41 +41,72 @@ class UserStruct {
       "type": type,
       "address": address,
       "isAvailable": isAvailable,
-      "work_type": workType
+      "work_type": workType,
+      "authID": authID
     };
   }
 }
 
-Future<List<UserStruct>> getAllUsersFromFireStore() async {
+Future<List<UserStruct>> getAllUsersFromFireStore(String getType) async {
   QuerySnapshot querySnapshot = await firebaseUser.get();
 
-  List<UserStruct> users = querySnapshot.docs.map((doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    return UserStruct(
-      firstName: data['firstname'],
-      lastName: data['lastname'],
-      username: data['username'],
-      contact: data['contact'],
-      email: data['email'],
-      type: data['type'],
-      address: data['address'],
-      isAvailable: data['isAvailable'],
-      workType: data['work_type'],
-    );
-  }).toList();
+  List<UserStruct> users = querySnapshot.docs
+      .map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        print("PRINTING DATA");
+        print(data);
+        return UserStruct(
+          id: doc.id,
+          firstName: data['firstname'],
+          lastName: data['lastname'],
+          username: data['username'],
+          contact: data['contact'],
+          email: data['email'],
+          type: data['type'],
+          address: data['address'],
+          isAvailable: data['isAvailable'],
+          workType: data['work_type'],
+          authID: data['id'],
+        );
+      })
+      .where((element) => element.type == getType)
+      .toList();
 
   return users;
 }
 
-void addUsersToFireStore(UserStruct user) async {
+Future<UserStruct?> getUsersFromFirestore(String uid) async {
+  QuerySnapshot snapshot = await firebaseUser.get();
+  List<UserStruct> users = snapshot.docs.map((doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return UserStruct(
+        id: doc.id,
+        firstName: data['firstname'],
+        lastName: data['lastname'],
+        username: data['username'],
+        contact: data['contact'],
+        email: data['email'],
+        type: data['type'],
+        address: data['address'],
+        isAvailable: data['isAvailable'],
+        workType: data['work_type'],
+        authID: data['id']);
+  }).toList();
+
+  UserStruct? user = users.firstWhere((user) => user.authID == uid);
+  return user;
+}
+
+Future<String> addUsersToFireStore(UserStruct user) async {
   DocumentReference docsRef = await firebaseUser.add(user.toMap());
 
   docsRef.printInfo();
-  print('Added user with ID:>>> ${docsRef.id}');
+  return docsRef.id;
 }
 
-
 void deleteUserFromFireStore(String userId) async {
+  print("RUNNING DELETE USER FUNCTION");
+  print(userId);
   try {
     await firebaseUser.doc(userId).delete();
     print('User with ID $userId deleted successfully!');
