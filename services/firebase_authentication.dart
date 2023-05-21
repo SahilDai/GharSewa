@@ -45,6 +45,18 @@ Future<Map<String, dynamic>> validateIfUserExistOrNo(
   return {'success': false, 'uid': Null};
 }
 
+deleteUser(String uid) async {
+  print(uid);
+  print("USER IDDDD");
+  User? user = auth.currentUser;
+  if (user != null && user.uid == uid) {
+    await user.delete();
+    print('User account deleted successfully');
+  } else {
+    print('User not found or UID does not match');
+  }
+}
+
 Widget checkIfUserLoggedIn(Widget childWidget) {
   return StreamBuilder(
     stream: auth.authStateChanges(),

@@ -1,16 +1,19 @@
 import 'package:day35/animation/FadeAnimation.dart';
 import 'package:day35/models/service.dart';
 import 'package:day35/pages/cleaning.dart';
+import 'package:day35/services/firestore_users.dart';
 import 'package:flutter/material.dart';
 
 class SelectService extends StatefulWidget {
-  const SelectService({Key? key}) : super(key: key);
+  final UserStruct IUsers;
+  const SelectService({required this.IUsers, Key? key}) : super(key: key);
 
   @override
   _SelectServiceState createState() => _SelectServiceState();
 }
 
 class _SelectServiceState extends State<SelectService> {
+  late UserStruct user;
   List<Service> services = [
     Service('Cleaning',
         'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
@@ -23,13 +26,13 @@ class _SelectServiceState extends State<SelectService> {
     Service('Carpenter', 'https://img.icons8.com/fluency/2x/drill.png'),
     Service('Gardener',
         'https://img.icons8.com/external-itim2101-flat-itim2101/2x/external-gardener-male-occupation-avatar-itim2101-flat-itim2101.png'),
-    Service('Tailor', 'https://img.icons8.com/fluency/2x/sewing-machine.png'),
-    Service('Maid', 'https://img.icons8.com/color/2x/housekeeper-female.png'),
-    Service('Driver',
-        'https://img.icons8.com/external-sbts2018-lineal-color-sbts2018/2x/external-driver-women-profession-sbts2018-lineal-color-sbts2018.png'),
-    Service('Cook',
-        'https://img.icons8.com/external-wanicon-flat-wanicon/2x/external-cooking-daily-routine-wanicon-flat-wanicon.png'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    user = widget.IUsers;
+  }
 
   int selectedService = -1;
 
@@ -43,7 +46,9 @@ class _SelectServiceState extends State<SelectService> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CleaningPage(),
+                      builder: (context) => CleaningPage(
+                        IUsers: user,
+                      ),
                     ),
                   );
                 },

@@ -66,6 +66,8 @@ class _RegisterState extends State<Register> {
         useremail = _emailController.text;
         showDialogLocal("Success", resMessage, context);
 
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(resMessage)));
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const MyLogin()),
@@ -77,6 +79,9 @@ class _RegisterState extends State<Register> {
         resMessage = "Error while creating user!!!";
         showDialogLocal("Error", resMessage, context);
       });
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(resMessage)));
     }
   }
 

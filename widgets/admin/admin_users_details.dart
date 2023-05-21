@@ -1,3 +1,5 @@
+import 'package:day35/pages/login.dart';
+import 'package:day35/services/firebase_authentication.dart';
 import 'package:day35/services/firestore_users.dart';
 import 'package:flutter/material.dart';
 
@@ -20,8 +22,9 @@ class _UserDetailState extends State<UserDetails> {
   late String _lastName = "";
   late String _workType = "";
   late String _address = "";
+  late String _authID = "";
 
-  void _saveForm() {
+  void _saveForm() async {
     bool isValid = _formKey.currentState!.validate();
 
     if (isValid) {
@@ -37,8 +40,19 @@ class _UserDetailState extends State<UserDetails> {
           email: _email,
           type: "users",
           isAvailable: true,
+          authID: _authID,
           workType: _workType);
-      updateUserFromFireStore(widget.IUsers.id!, user);
+      bool res = await updateUserFromFireStore(widget.IUsers.id!, user);
+
+      if (res) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("User has been updated")));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Unable to update users")));
+      }
+
+      Navigator.of(context).pop();
     }
   }
 
@@ -53,6 +67,7 @@ class _UserDetailState extends State<UserDetails> {
     _email = widget.IUsers.email!;
     _phone = widget.IUsers.contact!;
     _address = widget.IUsers.address!;
+    _authID = widget.IUsers.authID!;
   }
 
   @override
@@ -118,22 +133,7 @@ class _UserDetailState extends State<UserDetails> {
                   },
                 ),
                 TextFormField(
-                  initialValue: _workType,
-                  decoration: InputDecoration(
-                    labelText: "Wprk Type",
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please enter an work type";
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _workType = value!;
-                  },
-                ),
-                TextFormField(
-                  initialValue: _phone,
+                  initialValue: widget.IUsers.contact,
                   decoration: InputDecoration(
                     labelText: "Phone",
                   ),
@@ -188,10 +188,27 @@ class _UserDetailState extends State<UserDetails> {
                       child: Text("Update"),
                     ),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         print(widget.IUsers.id);
                         if (widget.IUsers.id != null) {
-                          deleteUserFromFireStore(widget.IUsers.id!);
+                          bool res =
+                              await deleteUserFromFireStore(widget.IUsers.id!);
+
+                          if (res) {
+                            // signout();
+                            deleteUser(widget.IUsers.authID!);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Successfully deleted account")));
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MyLogin()));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Error while deleting users")));
+                          }
+
                           Navigator.of(context).pop();
                         }
                       },

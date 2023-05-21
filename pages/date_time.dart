@@ -1,16 +1,19 @@
 import 'package:day35/animation/FadeAnimation.dart';
 import 'package:day35/pages/home.dart';
+import 'package:day35/services/firestore_users.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class DateAndTime extends StatefulWidget {
-  const DateAndTime({Key? key}) : super(key: key);
+  final UserStruct IUser;
+  const DateAndTime({required this.IUser, Key? key}) : super(key: key);
 
   @override
   _DateAndTimeState createState() => _DateAndTimeState();
 }
 
 class _DateAndTimeState extends State<DateAndTime> {
+  late UserStruct iUserS;
   int _selectedDay = 2;
   int _selectedRepeat = 0;
   String _selectedHour = '13:30';
@@ -139,6 +142,8 @@ class _DateAndTimeState extends State<DateAndTime> {
     });
 
     super.initState();
+
+    iUserS = widget.IUser;
   }
 
   @override
@@ -150,7 +155,9 @@ class _DateAndTimeState extends State<DateAndTime> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(),
+              builder: (context) => HomePage(
+                iUserS: iUserS,
+              ),
             ),
           );
         },

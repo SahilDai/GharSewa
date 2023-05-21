@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 final firebaseUser = FirebaseFirestore.instance.collection('users');
@@ -53,8 +54,6 @@ Future<List<UserStruct>> getAllUsersFromFireStore(String getType) async {
   List<UserStruct> users = querySnapshot.docs
       .map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        print("PRINTING DATA");
-        print(data);
         return UserStruct(
           id: doc.id,
           firstName: data['firstname'],
@@ -93,11 +92,7 @@ Future<UserStruct?> getUsersFromFirestore(String uid) async {
         authID: data['authID']);
   }).toList();
 
-  print("USER OBJ HERE");
   UserStruct? user = users.firstWhere((e) => e.authID == uid);
-  print(user.authID);
-  print(user.id);
-  print("xxxxxxxxxxxxxxxxxxxxxxx");
   return user;
 }
 
@@ -108,20 +103,36 @@ Future<String> addUsersToFireStore(UserStruct user) async {
   return docsRef.id;
 }
 
-void deleteUserFromFireStore(String userId) async {
+Future<bool> deleteUserFromFireStore(String userId) async {
   try {
     await firebaseUser.doc(userId).delete();
     print('User with ID $userId deleted successfully!');
+
+    return true;
   } catch (e) {
     print('Error deleting user: $e');
+
+    return false;
   }
 }
 
-void updateUserFromFireStore(String userId, UserStruct user) async {
+Future<bool> updateUserFromFireStore(String userId, UserStruct user) async {
   try {
     await firebaseUser.doc(userId).update(user.toMap());
     print('User with ID $userId updated successfully!');
+
+    return true;
   } catch (e) {
     print('Error updating user: $e');
+
+    return false;
+  }
+}
+
+void signout() async {
+  try {
+    await FirebaseAuth.instance.signOut();
+  } catch (e) {
+    print("Error while logging out user: $e ");
   }
 }

@@ -1,15 +1,20 @@
 import 'package:day35/animation/FadeAnimation.dart';
 import 'package:day35/models/service.dart';
+import 'package:day35/services/firestore_users.dart';
+import 'package:day35/widgets/admin/admin_users_details.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final UserStruct iUserS;
+  const HomePage({required this.iUserS, Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  late UserStruct userS;
+  // late Twilio
   List<Service> services = [
     Service('Cleaning',
         'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
@@ -44,6 +49,13 @@ class _HomePageState extends State<HomePage> {
       4.4
     ]
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    userS = widget.iUserS;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +103,6 @@ class _HomePageState extends State<HomePage> {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'View all',
-                        ))
                   ],
                 ),
               )),
@@ -123,12 +130,12 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ClipRRect(
-                              borderRadius: BorderRadius.circular(15.0),
-                              child: Image.network(
-                                'https://images.pexels.com/photos/355164/pexels-photo-355164.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb',
-                                width: 70,
-                              )),
+                          // ClipRRect(
+                          //     borderRadius: BorderRadius.circular(15.0),
+                          //     child: Image.network(
+                          //       'https://images.pexels.com/photos/355164/pexels-photo-355164.jpeg?crop=faces&fit=crop&h=200&w=200&auto=compress&cs=tinysrgb',
+                          //       width: 70,
+                          //     )),
                           SizedBox(
                             width: 15,
                           ),
@@ -136,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Isabel Kirkland",
+                                userS.username!,
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 20,
@@ -146,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                                 height: 5,
                               ),
                               Text(
-                                "Cleaner",
+                                userS.type!,
                                 style: TextStyle(
                                     color: Colors.black.withOpacity(0.7),
                                     fontSize: 18),
@@ -158,16 +165,29 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         height: 20,
                       ),
-                      Container(
-                        height: 50,
-                        decoration: BoxDecoration(
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      UserDetails(IUsers: userS)));
+                          print(userS.contact);
+                        },
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
                             color: Colors.blue,
-                            borderRadius: BorderRadius.circular(15.0)),
-                        child: Center(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Center(
                             child: Text(
-                          'View Profile',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        )),
+                              'View Profile',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
                       )
                     ],
                   ),
@@ -188,11 +208,11 @@ class _HomePageState extends State<HomePage> {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'View all',
-                        ))
+                    // TextButton(
+                    //     onPressed: () {},
+                    //     child: Text(
+                    //       'View all',
+                    //     ))
                   ],
                 ),
               )),
@@ -241,15 +261,52 @@ class _HomePageState extends State<HomePage> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             height: 120,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: workers.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return FadeAnimation(
-                      (1.0 + index) / 4,
-                      workerContainer(workers[index][0], workers[index][1],
-                          workers[index][2], workers[index][3]));
-                }),
+            child: FutureBuilder<List<UserStruct>>(
+              future: getAllUsersFromFireStore("service provider"),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                } else if (snapshot.hasData) {
+                  List<UserStruct> workers = snapshot.data!;
+
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: workers.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        UserStruct worker = workers[index];
+                        return FadeAnimation(
+                          (1.0 + index) / 4,
+                          workerContainer(
+                            worker.firstName!,
+                            worker.lastName!,
+                            worker.username!,
+                            worker.contact!,
+                            worker.address!,
+                            worker.email!,
+                            worker.type!,
+                            worker.isAvailable!,
+                            worker.workType!,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                } else {
+                  return Center(
+                    child: Text('No data available'),
+                  );
+                }
+              },
+            ),
           ),
           SizedBox(
             height: 150,
@@ -286,8 +343,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  workerContainer(String name, String job, String image, double rating) {
+  Widget workerContainer(
+    String firstName,
+    String lastName,
+    String username,
+    String contact,
+    String address,
+    String email,
+    String type,
+    bool isAvailable,
+    String workType,
+  ) {
     return GestureDetector(
+      onTap: () {
+        // Handle container click event
+      },
       child: AspectRatio(
         aspectRatio: 3.5,
         child: Container(
@@ -302,53 +372,65 @@ class _HomePageState extends State<HomePage> {
             borderRadius: BorderRadius.circular(20.0),
           ),
           child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                ClipRRect(
-                    borderRadius: BorderRadius.circular(15.0),
-                    child: Image.network(image)),
-                SizedBox(
-                  width: 20,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      name,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      job,
-                      style: TextStyle(fontSize: 15),
-                    )
-                  ],
-                ),
-                Spacer(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      rating.toString(),
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Icon(
-                      Icons.star,
-                      color: Colors.orange,
-                      size: 20,
-                    )
-                  ],
-                )
-              ]),
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              // ClipRRect(
+              //   borderRadius: BorderRadius.circular(15.0),
+              //   child: Container(
+              //     width: 80,
+              //     height: 80,
+              //   ),
+              //   // child: Image.network(
+              //   //   // image,
+              //   //   width: 80,
+              //   //   height: 80,
+              //   //   fit: BoxFit.cover,
+              //   // ),
+              // ),
+              SizedBox(width: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    username,
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    contact,
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  // SizedBox(height: 5),
+                  // Text(
+                  //   address,
+                  //   style: TextStyle(fontSize: 15),
+                  // ),
+                ],
+              ),
+              Spacer(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    workType,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+                  isAvailable
+                      ? Text(
+                          'Available',
+                          style: TextStyle(fontSize: 14, color: Colors.green),
+                        )
+                      : Text(
+                          'Not Available',
+                          style: TextStyle(fontSize: 14, color: Colors.red),
+                        ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
