@@ -56,6 +56,7 @@ class _RegisterState extends State<Register> {
           type: _dropdownVal,
           isAvailable: true,
           workType: isServiceProviderSelected,
+          id: "",
           authID: res["uid"]);
 
       addUsersToFireStore(user);

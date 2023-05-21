@@ -90,10 +90,14 @@ Future<UserStruct?> getUsersFromFirestore(String uid) async {
         address: data['address'],
         isAvailable: data['isAvailable'],
         workType: data['work_type'],
-        authID: data['id']);
+        authID: data['authID']);
   }).toList();
 
-  UserStruct? user = users.firstWhere((user) => user.authID == uid);
+  print("USER OBJ HERE");
+  UserStruct? user = users.firstWhere((e) => e.authID == uid);
+  print(user.authID);
+  print(user.id);
+  print("xxxxxxxxxxxxxxxxxxxxxxx");
   return user;
 }
 
